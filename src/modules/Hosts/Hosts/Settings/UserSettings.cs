@@ -39,6 +39,21 @@ namespace Hosts.Settings
             }
         }
 
+        private bool _removeLeadingWhiteSpaces;
+
+        public bool RemoveLeadingWhiteSpaces
+        {
+            get => _removeLeadingWhiteSpaces;
+            set
+            {
+                if (_removeLeadingWhiteSpaces != value)
+                {
+                    _removeLeadingWhiteSpaces = value;
+                    RemoveLeadingWhiteSpacesChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
         // Moved from Settings.UI.Library
         public HostsAdditionalLinesPosition AdditionalLinesPosition { get; private set; }
 
@@ -47,11 +62,14 @@ namespace Hosts.Settings
 
         public event EventHandler LoopbackDuplicatesChanged;
 
+        public event EventHandler RemoveLeadingWhiteSpacesChanged;
+
         public UserSettings()
         {
             _settingsUtils = new SettingsUtils();
             ShowStartupWarning = true;
             LoopbackDuplicates = false;
+            RemoveLeadingWhiteSpaces = false;
             AdditionalLinesPosition = HostsAdditionalLinesPosition.Top;
             Encoding = HostsEncoding.Utf8;
 
@@ -88,6 +106,7 @@ namespace Hosts.Settings
                             AdditionalLinesPosition = (HostsAdditionalLinesPosition)settings.Properties.AdditionalLinesPosition;
                             Encoding = (HostsEncoding)settings.Properties.Encoding;
                             LoopbackDuplicates = settings.Properties.LoopbackDuplicates;
+                            RemoveLeadingWhiteSpaces = settings.Properties.RemoveLeadingWhiteSpaces;
                         }
 
                         retry = false;

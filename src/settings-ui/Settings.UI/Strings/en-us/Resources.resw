@@ -4153,6 +4153,9 @@ Activate by holding the key for the character you want to add an accent to, then
   <data name="Hosts_Toggle_LoopbackDuplicates.Header" xml:space="preserve">
     <value>Consider loopback addresses as duplicates</value>
   </data>
+  <data name="Hosts_Toggle_RemoveLeadingWhiteSpaces.Header" xml:space="preserve">
+    <value>Remove leading whitespaces</value>
+  </data>
   <data name="RegistryPreview_Launch_GroupSettings.Header" xml:space="preserve">
     <value>Launch</value>
   </data>

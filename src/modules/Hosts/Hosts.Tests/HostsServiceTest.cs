@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
@@ -27,8 +28,59 @@ namespace Hosts.Tests
         public static void ClassInitialize(TestContext context)
         {
             _userSettings = new Mock<IUserSettings>();
+            _userSettings.Setup(m => m.RemoveLeadingWhiteSpaces).Returns(true);
             _elevationHelper = new Mock<IElevationHelper>();
             _elevationHelper.Setup(m => m.IsElevated).Returns(true);
+        }
+
+        [TestMethod]
+        public async Task WhiteSpaces_NotPresent()
+        {
+            _userSettings.Setup(m => m.RemoveLeadingWhiteSpaces).Returns(true);
+
+            var previous = @"# 192.168.178.100 schnidel # String
+";
+            var content = @"# 192.168.178.100 schnidel # String
+192.168.178.100 schnidel # String
+";
+            var filesystem = new CustomMockFileSystem();
+            var service = new HostsService(filesystem, _userSettings.Object, _elevationHelper.Object);
+            filesystem.AddFile(service.HostsFilePath, previous);
+
+            var data = await service.ReadAsync();
+            var entries = data.Entries.ToList();
+            var additionalLines = " ";
+            Entry entry = new Entry(1, "192.168.178.100", "schnidel", "String", true);
+            entries.Add(entry);
+            await service.WriteAsync(additionalLines, entries);
+            var result = filesystem.GetFile(service.HostsFilePath);
+            Assert.AreEqual(content, result.TextContents);
+        }
+
+        [TestMethod]
+        public async Task WhiteSpaces_Present()
+        {
+            _userSettings.Setup(m => m.RemoveLeadingWhiteSpaces).Returns(false);
+
+            var previous =
+@"# 192.168.178.100 schnidel # String
+";
+            var content =
+@"# 192.168.178.100 schnidel # String
+  192.168.178.100 schnidel # String
+";
+            var filesystem = new CustomMockFileSystem();
+            var service = new HostsService(filesystem, _userSettings.Object, _elevationHelper.Object);
+            filesystem.AddFile(service.HostsFilePath, previous);
+
+            var data = await service.ReadAsync();
+            var entries = data.Entries.ToList();
+            var additionalLines = " ";
+            Entry entry = new Entry(1, "192.168.178.100", "schnidel", "String", true);
+            entries.Add(entry);
+            await service.WriteAsync(additionalLines, entries);
+            var result = filesystem.GetFile(service.HostsFilePath);
+            Assert.AreEqual(content, result.TextContents);
         }
 
         [TestMethod]
@@ -65,7 +117,7 @@ namespace Hosts.Tests
   10.1.1.2  host2 host2.local   # another comment
 # 10.1.1.30 host30 host30.local # new entry
 ";
-
+            _userSettings.Setup(m => m.RemoveLeadingWhiteSpaces).Returns(false);
             var fileSystem = new CustomMockFileSystem();
             var service = new HostsService(fileSystem, _userSettings.Object, _elevationHelper.Object);
             fileSystem.AddFile(service.HostsFilePath, new MockFileData(content));
@@ -116,7 +168,7 @@ namespace Hosts.Tests
 @"# 10.1.1.10 host host.local host1.local # updated comment
   10.1.1.2  host2 host2.local           # another comment
 ";
-
+            _userSettings.Setup(m => m.RemoveLeadingWhiteSpaces).Returns(false);
             var fileSystem = new CustomMockFileSystem();
             var service = new HostsService(fileSystem, _userSettings.Object, _elevationHelper.Object);
             fileSystem.AddFile(service.HostsFilePath, new MockFileData(content));

@@ -12,11 +12,15 @@ namespace HostsUILib.Settings
 
         public bool LoopbackDuplicates { get; }
 
+        public bool RemoveLeadingWhiteSpaces { get; }
+
         public HostsAdditionalLinesPosition AdditionalLinesPosition { get; }
 
         public HostsEncoding Encoding { get; }
 
         event EventHandler LoopbackDuplicatesChanged;
+
+        event EventHandler RemoveLeadingWhiteSpacesChanged;
 
         public delegate void OpenSettingsFunction();
     }

@@ -92,6 +92,19 @@ namespace Microsoft.PowerToys.Settings.UI.ViewModels
             }
         }
 
+        public bool RemoveLeadingWhiteSpaces
+        {
+            get => Settings.Properties.RemoveLeadingWhiteSpaces;
+            set
+            {
+                if (value != Settings.Properties.RemoveLeadingWhiteSpaces)
+                {
+                    Settings.Properties.RemoveLeadingWhiteSpaces = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public bool LaunchAdministrator
         {
             get => Settings.Properties.LaunchAdministrator;

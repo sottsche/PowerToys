@@ -102,6 +102,7 @@ namespace HostsUILib.ViewModels
 
             _hostsService.FileChanged += (s, e) => _dispatcherQueue.TryEnqueue(() => FileChanged = true);
             _userSettings.LoopbackDuplicatesChanged += (s, e) => ReadHosts();
+            _userSettings.RemoveLeadingWhiteSpacesChanged += (s, e) => UpdateFile();
 
             LoggerInstance.Logger = logger;
             _openSettingsFunction = openSettingsFunction;
@@ -169,6 +170,13 @@ namespace HostsUILib.ViewModels
                 _entries.Remove(entry);
                 _duplicateService.CheckDuplicates(address, hosts);
             }
+        }
+
+        [RelayCommand]
+        public void UpdateFile()
+        {
+            ReadHosts();
+            OverwriteHosts();
         }
 
         [RelayCommand]
